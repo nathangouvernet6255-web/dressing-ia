@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Dressing & Style AI - Sur-mesure & Linge Sale</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 85, 247, 0.6);
+        }
+        @keyframes scanLine {
+            0% { top: 0%; opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { top: 98%; opacity: 0.8; }
+        }
+        .animate-scan {
+            animation: scanLine 2.2s ease-in-out infinite alternate;
+        }
+        .outfit-card-glow {
+            box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.25);
+        }
+        @keyframes bubbleFloat {
+            0% { transform: translateY(0px) scale(1); opacity: 0.8; }
+            50% { transform: translateY(-10px) scale(1.05); opacity: 1; }
+            100% { transform: translateY(0px) scale(1); opacity: 0.8; }
+        }
+        .bubble-anim {
+            animation: bubbleFloat 3s ease-in-out infinite;
+        }
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-full flex flex-col font-sans transition-colors duration-300">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('outfit')">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-serif font-bold text-xl sm:text-2xl text-slate-900 tracking-tight">Dressing AI</span>
+                        <span class="hidden sm:inline-block ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-brand-100 text-brand-700">Styliste & Linge</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80">
+                    <button id="nav-outfit" onclick="switchTab('outfit')" class="flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-brand-700 shadow-sm">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Outfit du Jour</span>
+                        <span class="md:hidden">Outfit</span>
+                    </button>
+                    <button id="nav-dressing" onclick="switchTab('dressing')" class="flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900">
+                        <i data-lucide="shirt" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Dressing Propre</span>
+                        <span class="md:hidden">Propre</span>
+                        <span id="clean-badge" class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-slate-200 text-slate-700 font-bold">0</span>
+                    </button>
+                    <button id="nav-laundry" onclick="switchTab('laundry')" class="flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 relative">
+                        <i data-lucide="washing-machine" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Linge Sale</span>
+                        <span class="md:hidden">Linge</span>
+                        <span id="dirty-badge" class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-amber-500 text-white font-bold">0</span>
+                    </button>
+                    <button id="nav-scanner" onclick="switchTab('scanner')" class="flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900">
+                        <i data-lucide="scan-line" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Scanner</span>
+                        <span class="md:hidden">Scan</span>
+                    </button>
+                    <button id="nav-settings" onclick="switchTab('settings')" class="p-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900" title="Personnaliser les catégories & options">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed top-24 right-4 sm:right-8 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
+            <div class="glass-panel border-brand-300 bg-white/95 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-3 border border-purple-200">
+                <div id="toast-icon-bg" class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600">
+                    <i data-lucide="check" class="w-4 h-4" id="toast-icon"></i>
+                </div>
+                <p id="toast-msg" class="text-xs sm:text-sm font-medium text-slate-800">Message de notification</p>
+            </div>
+        </div>
+
+        <!-- TAB 1: OUTFIT DU JOUR GENERATOR -->
+        <section id="tab-outfit" class="space-y-8">
+            <!-- Hero Generator Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 sm:p-10 text-white shadow-2xl">
+                <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute right-1/3 -top-12 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-purple-200 border border-white/10">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1.5 text-yellow-300"></i> AI Outfit Generator
+                        </span>
+                        <span id="dirty-alert-banner" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            <i data-lucide="washing-machine" class="w-3.5 h-3.5 mr-1.5"></i> <span id="dirty-banner-count">0</span> vêtement(s) au linge sale
+                        </span>
+                    </div>
+
+                    <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
+                        L'Outfit du jour le plus joli de ton dressing ✨
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base max-w-xl">
+                        Compose une tenue idéale parmi tes **vêtements propres disponibles**. Une fois portée, elle bascule automatiquement au **linge sale** !
+                    </p>
+
+                    <!-- Filter Options for Generator -->
+                    <div class="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Météo / Saison</label>
+                            <select id="gen-season" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-400">
+                                <option value="all" class="bg-slate-900 text-white">Toutes Saisons</option>
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Style de la journée</label>
+                            <select id="gen-style" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-400">
+                                <option value="all" class="bg-slate-900 text-white">Tous les styles</option>
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Action</label>
+                            <button onclick="generateDailyOutfit()" class="w-full bg-gradient-to-r from-brand-500 to-pink-500 hover:from-brand-600 hover:to-pink-600 text-white font-semibold py-2 px-4 rounded-xl text-xs sm:text-sm transition duration-200 flex items-center justify-center space-x-1.5 shadow-lg shadow-pink-500/25">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                <span>Composer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Outfit Presentation Container -->
+            <div id="outfit-result-container" class="transition-all duration-300">
+                <!-- Rendered dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 2: VIRTUAL DRESSING / CLEAN WARDROBE -->
+        <section id="tab-dressing" class="hidden space-y-6">
+            <!-- Top Controls Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-slate-900">Mon Armoire (Propre & Prêt à porter)</h2>
+                    <p class="text-slate-500 text-sm">Tes vêtements propres rangés par catégorie. Seuls ces vêtements sont proposés pour l'Outfit du jour.</p>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button onclick="switchTab('scanner')" class="px-4 py-2.5 bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-2xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 border border-brand-200">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Scanner un vêtement</span>
+                    </button>
+                    <button onclick="openCustomOptionModal('category')" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-semibold transition flex items-center space-x-1">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Catégorie</span>
+                    </button>
+                    <button onclick="resetDressingToDefault()" class="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-2xl transition" title="Recharger la collection démo">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Category Filter Tabs -->
+            <div id="category-filter-tabs" class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Clothes Grid -->
+            <div id="clothes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Dynamically generated clothes -->
+            </div>
+        </section>
+
+        <!-- TAB 3: LAUNDRY / LINGE SALE & MACHINE A LAVER -->
+        <section id="tab-laundry" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-slate-100 p-6 sm:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="flex items-start space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 bubble-anim">
+                        <i data-lucide="washing-machine" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-serif text-2xl font-bold text-slate-900">Corbeille à Linge Sale</h2>
+                        <p class="text-slate-600 text-sm mt-1 max-w-xl">
+                            Les vêtements portés durant la semaine basculent ici. Lorsqu'ils sont au linge sale, ils n'apparaissent plus dans les tenues générées jusqu'à ce que tu les laves !
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                    <button id="wash-all-btn" onclick="washAllDirtyClothes()" class="w-full md:w-auto px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm rounded-2xl transition shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Tout Laver & Ranger dans l'Armoire</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dirty Laundry Items Grid -->
+            <div id="laundry-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Dynamically generated dirty clothes -->
+            </div>
+        </section>
+
+        <!-- TAB 4: SCANNER / ADD CLOTHING -->
+        <section id="tab-scanner" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="font-serif text-2xl font-bold text-slate-900">Scanner & Ajouter au Dressing</h2>
+                        <p class="text-slate-500 text-sm">Simule un scan avec l'IA ou personnalise librement la catégorie, la couleur, le style et la saison.</p>
+                    </div>
+                    <button onclick="switchTab('settings')" class="text-xs text-brand-600 hover:text-brand-800 font-semibold flex items-center space-x-1">
+                        <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+                        <span>Gérer toutes les options</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <!-- Scan Viewfinder Simulation -->
+                    <div class="space-y-4">
+                        <div class="relative w-full aspect-square bg-slate-900 rounded-3xl overflow-hidden border-4 border-slate-800 flex flex-col items-center justify-center text-center p-6 shadow-inner group">
+                            <!-- Background Image Preview if scanned or selected -->
+                            <img id="scan-preview-img" src="" class="absolute inset-0 w-full h-full object-cover hidden" alt="Scan preview">
+                            
+                            <!-- Laser Scanning overlay -->
+                            <div id="scanner-laser" class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-brand-400 to-transparent shadow-[0_0_15px_#c084fc] animate-scan hidden"></div>
+
+                            <!-- Camera frame lines -->
+                            <div class="absolute inset-6 border-2 border-dashed border-white/30 rounded-2xl pointer-events-none"></div>
+
+                            <!-- Placeholder UI inside scanner -->
+                            <div id="scan-placeholder" class="relative z-10 flex flex-col items-center space-y-3 text-slate-400">
+                                <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
+                                    <i data-lucide="camera" class="w-8 h-8"></i>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-300 font-medium">Place ton vêtement au centre du cadre</p>
+                                <span class="text-[10px] bg-white/10 text-slate-300 px-3 py-1 rounded-full">IA Vêtements v2.5 Custom</span>
+                            </div>
+
+                            <!-- Image Overlay Controls -->
+                            <div class="absolute bottom-4 left-4 right-4 z-20 flex justify-center space-x-2">
+                                <label class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center space-x-1.5 border border-white/20">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                    <span>Importer photo</span>
+                                    <input type="file" id="scan-file-input" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                                </label>
+                                <button onclick="triggerSimulatedScan()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-1.5 rounded-xl text-xs font-semibold shadow-lg transition flex items-center space-x-1.5">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    <span>Scanner IA</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Icons Quick Preset Selection -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-2">Ou choisis un modèle prêt à l'emploi :</label>
+                            <div class="grid grid-cols-5 gap-2" id="preset-thumbnails">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clothing Attributes Form with Inline Custom Add Buttons -->
+                    <form id="add-clothing-form" onsubmit="saveClothing(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nom de la pièce</label>
+                            <input type="text" id="item-title" placeholder="Ex: T-shirt Coton Blanc Over-size" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        </div>
+
+                        <!-- Category Selection & Inline Add -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-slate-700">Catégorie</label>
+                                <button type="button" onclick="openCustomOptionModal('category')" class="text-[11px] font-semibold text-brand-600 hover:text-brand-800 flex items-center space-x-1">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                    <span>Nouvelle catégorie</span>
+                                </button>
+                            </div>
+                            <select id="item-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                <!-- Dynamic Options -->
+                            </select>
+                        </div>
+
+                        <!-- Color Selection & Inline Add -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-slate-700">Couleur Dominante</label>
+                                <button type="button" onclick="openCustomOptionModal('color')" class="text-[11px] font-semibold text-brand-600 hover:text-brand-800 flex items-center space-x-1">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                    <span>Nouvelle couleur</span>
+                                </button>
+                            </div>
+                            <select id="item-color" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                <!-- Dynamic Options -->
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Style Selection & Inline Add -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-semibold text-slate-700">Style</label>
+                                    <button type="button" onclick="openCustomOptionModal('style')" class="text-[11px] font-semibold text-brand-600 hover:text-brand-800 flex items-center space-x-0.5">
+                                        <i data-lucide="plus" class="w-3 h-3"></i>
+                                        <span>Créer</span>
+                                    </button>
+                                </div>
+                                <select id="item-style" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                    <!-- Dynamic Options -->
+                                </select>
+                            </div>
+
+                            <!-- Season Selection & Inline Add -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-semibold text-slate-700">Saison / Chaleur</label>
+                                    <button type="button" onclick="openCustomOptionModal('season')" class="text-[11px] font-semibold text-brand-600 hover:text-brand-800 flex items-center space-x-0.5">
+                                        <i data-lucide="plus" class="w-3 h-3"></i>
+                                        <span>Créer</span>
+                                    </button>
+                                </div>
+                                <select id="item-season" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                    <!-- Dynamic Options -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Lien de l'Image (URL)</label>
+                            <input type="url" id="item-image" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-2xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-slate-900/20">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                <span>Ajouter au Dressing Propre</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: SETTINGS & CUSTOMIZATION PANEL -->
+        <section id="tab-settings" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-8">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-slate-900">Personnalisation des Options</h2>
+                    <p class="text-slate-500 text-sm">Ajoute tes propres catégories, couleurs avec nuancier, saisons/chaleurs et styles vestimentaires pour adapter l'application à ton dressing unique.</p>
+                </div>
+
+                <!-- Custom Options Management Sections -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Categories Management -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="tag" class="w-4 h-4 text-brand-600"></i>
+                                <h3 class="font-bold text-sm text-slate-800">Catégories (${categories.length})</h3>
+                            </div>
+                            <button onclick="openCustomOptionModal('category')" class="px-2.5 py-1 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+                        <div id="settings-categories-list" class="flex flex-wrap gap-2">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Colors Management -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="palette" class="w-4 h-4 text-brand-600"></i>
+                                <h3 class="font-bold text-sm text-slate-800">Couleurs (${colors.length})</h3>
+                            </div>
+                            <button onclick="openCustomOptionModal('color')" class="px-2.5 py-1 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+                        <div id="settings-colors-list" class="flex flex-wrap gap-2">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Styles Management -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-brand-600"></i>
+                                <h3 class="font-bold text-sm text-slate-800">Styles Vestimentaires</h3>
+                            </div>
+                            <button onclick="openCustomOptionModal('style')" class="px-2.5 py-1 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+                        <div id="settings-styles-list" class="flex flex-wrap gap-2">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Seasons / Temperature Management -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="thermometer-sun" class="w-4 h-4 text-brand-600"></i>
+                                <h3 class="font-bold text-sm text-slate-800">Saisons / Niveaux de Chaleur</h3>
+                            </div>
+                            <button onclick="openCustomOptionModal('season')" class="px-2.5 py-1 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+                        <div id="settings-seasons-list" class="flex flex-wrap gap-2">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL FOR ADDING CUSTOM OPTIONS -->
+    <div id="custom-option-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-100 transform transition-all">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 id="modal-title" class="font-bold text-slate-900 text-lg">Ajouter une option</h3>
+                <button onclick="closeCustomOptionModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="custom-option-form" onsubmit="saveCustomOption(event)" class="space-y-4">
+                <input type="hidden" id="modal-type" value="category">
+
+                <div>
+                    <label id="modal-name-label" class="block text-xs font-semibold text-slate-700 mb-1">Nom</label>
+                    <input type="text" id="modal-item-name" placeholder="Ex: Pyjamas / Maillots..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                </div>
+
+                <!-- Icon/Emoji picker input -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Emoji / Icône associé</label>
+                    <input type="text" id="modal-item-icon" placeholder="Ex: 🩲, 👙, 🥾, ⚡" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                </div>
+
+                <!-- Color picker (only shown if type === 'color') -->
+                <div id="color-picker-container" class="hidden space-y-2">
+                    <label class="block text-xs font-semibold text-slate-700">Code Couleur Hex / Nuancier</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" id="modal-color-hex" value="#a855f7" class="w-12 h-12 rounded-xl cursor-pointer border-0 p-0 bg-transparent">
+                        <input type="text" id="modal-color-hex-text" value="#a855f7" placeholder="#a855f7" class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex space-x-2">
+                    <button type="button" onclick="closeCustomOptionModal()" class="w-1/2 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Annuler
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-brand-500/20">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200/60 bg-white py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© 2026 Dressing & Style AI — Garde-robe Sur-mesure & Corbeille à Linge</p>
+            <div class="flex items-center space-x-4">
+                <span class="hover:text-slate-600 cursor-pointer" onclick="switchTab('settings')">⚙️ Configuration</span>
+                <span class="hover:text-slate-600 cursor-pointer" onclick="switchTab('laundry')">🧺 Linge sale (<span id="footer-dirty-cnt">0</span>)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // Default Dynamic Options
+        const DEFAULT_CATEGORIES = [
+            { id: 'cat-1', name: 'Hauts', icon: '👕' },
+            { id: 'cat-2', name: 'Bas', icon: '👖' },
+            { id: 'cat-3', name: 'Vestes', icon: '🧥' },
+            { id: 'cat-4', name: 'Chaussures', icon: '👟' },
+            { id: 'cat-5', name: 'Accessoires', icon: '🕶️' }
+        ];
+
+        const DEFAULT_COLORS = [
+            { id: 'col-1', name: 'Noir', hex: '#0f172a', icon: '🖤' },
+            { id: 'col-2', name: 'Blanc', hex: '#f8fafc', icon: '🤍' },
+            { id: 'col-3', name: 'Bleu', hex: '#3b82f6', icon: '💙' },
+            { id: 'col-4', name: 'Gris', hex: '#94a3b8', icon: '🩶' },
+            { id: 'col-5', name: 'Marron', hex: '#78350f', icon: '🤎' },
+            { id: 'col-6', name: 'Rouge', hex: '#ef4444', icon: '❤️' },
+            { id: 'col-7', name: 'Vert', hex: '#10b981', icon: '💚' },
+            { id: 'col-8', name: 'Jaune', hex: '#f59e0b', icon: '💛' }
+        ];
+
+        const DEFAULT_STYLES = [
+            { id: 'sty-1', name: 'Casual', icon: '☕' },
+            { id: 'sty-2', name: 'Chic', icon: '✨' },
+            { id: 'sty-3', name: 'Streetwear', icon: '🧢' },
+            { id: 'sty-4', name: 'Sport', icon: '⚽' },
+            { id: 'sty-5', name: 'Soirée', icon: '🍸' },
+            { id: 'sty-6', name: 'Workwear', icon: '💼' }
+        ];
+
+        const DEFAULT_SEASONS = [
+            { id: 'sea-1', name: 'Toutes', icon: '🔄' },
+            { id: 'sea-2', name: 'Été', icon: '☀️' },
+            { id: 'sea-3', name: 'Demi-saison', icon: '⛅' },
+            { id: 'sea-4', name: 'Hiver', icon: '❄️' },
+            { id: 'sea-5', name: 'Grand Froid', icon: '🥶' },
+            { id: 'sea-6', name: 'Canicule', icon: '🔥' }
+        ];
+
+        // Sample Initial Wardrobe Data
+        const SAMPLE_CLOTHES = [
+            {
+                id: '1',
+                title: 'T-Shirt Coton Premium Blanc',
+                category: 'Hauts',
+                color: 'Blanc',
+                style: 'Casual',
+                season: 'Toutes',
+                image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
+                favorite: true,
+                isDirty: false
+            },
+            {
+                id: '2',
+                title: 'Chemise en Lin Beige Light',
+                category: 'Hauts',
+                color: 'Blanc',
+                style: 'Chic',
+                season: 'Été',
+                image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: false
+            },
+            {
+                id: '3',
+                title: 'Sweat à Capuche Oversize Noir',
+                category: 'Hauts',
+                color: 'Noir',
+                style: 'Streetwear',
+                season: 'Demi-saison',
+                image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: true
+            },
+            {
+                id: '4',
+                title: 'Jean Slim Denim Bleu Brut',
+                category: 'Bas',
+                color: 'Bleu',
+                style: 'Casual',
+                season: 'Toutes',
+                image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
+                favorite: true,
+                isDirty: false
+            },
+            {
+                id: '5',
+                title: 'Pantalon Tailleur Beige',
+                category: 'Bas',
+                color: 'Blanc',
+                style: 'Chic',
+                season: 'Demi-saison',
+                image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: false
+            },
+            {
+                id: '6',
+                title: 'Jogging Minimaliste Gris',
+                category: 'Bas',
+                color: 'Gris',
+                style: 'Sport',
+                season: 'Toutes',
+                image: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: true
+            },
+            {
+                id: '7',
+                title: 'Sneakers Minimalistes Blanches',
+                category: 'Chaussures',
+                color: 'Blanc',
+                style: 'Casual',
+                season: 'Toutes',
+                image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80',
+                favorite: true,
+                isDirty: false
+            },
+            {
+                id: '8',
+                title: 'Mocassins Cuir Noir Chic',
+                category: 'Chaussures',
+                color: 'Noir',
+                style: 'Chic',
+                season: 'Demi-saison',
+                image: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: false
+            },
+            {
+                id: '9',
+                title: 'Veste Manteau en Laine Camel',
+                category: 'Vestes',
+                color: 'Marron',
+                style: 'Chic',
+                season: 'Hiver',
+                image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=600&q=80',
+                favorite: true,
+                isDirty: false
+            },
+            {
+                id: '10',
+                title: 'Veste en Jean Vintage Bleu',
+                category: 'Vestes',
+                color: 'Bleu',
+                style: 'Streetwear',
+                season: 'Demi-saison',
+                image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: false
+            },
+            {
+                id: '11',
+                title: 'Lunettes de Soleil Vintage',
+                category: 'Accessoires',
+                color: 'Noir',
+                style: 'Chic',
+                season: 'Été',
+                image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80',
+                favorite: false,
+                isDirty: false
+            }
+        ];
+
+        // Preset images for Scanner fast selection
+        const PRESETS = [
+            { category: 'Hauts', color: 'Blanc', title: 'Top Blanc', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
+            { category: 'Hauts', color: 'Noir', title: 'Sweat Noir', image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80' },
+            { category: 'Bas', color: 'Bleu', title: 'Jean Denim', image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80' },
+            { category: 'Chaussures', color: 'Blanc', title: 'Baskets Blanches', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80' },
+            { category: 'Vestes', color: 'Marron', title: 'Manteau Camel', image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        // Application State
+        let wardrobe = [];
+        let categories = [];
+        let colors = [];
+        let styles = [];
+        let seasons = [];
+        let activeCategoryFilter = 'all';
+        let currentGeneratedOutfit = null;
+
+        // Initialize App
+        window.onload = function() {
+            loadCustomOptions();
+            loadWardrobe();
+            renderPresetThumbnails();
+            generateDailyOutfit();
+            
+            // Sync color picker hex with text input
+            const hexColorInput = document.getElementById('modal-color-hex');
+            const hexTextInput = document.getElementById('modal-color-hex-text');
+            if (hexColorInput && hexTextInput) {
+                hexColorInput.addEventListener('input', (e) => hexTextInput.value = e.target.value);
+                hexTextInput.addEventListener('input', (e) => hexColorInput.value = e.target.value);
+            }
+
+            lucide.createIcons();
+        };
+
+        // --- CUSTOM OPTIONS STORAGE & RENDERING ---
+        function loadCustomOptions() {
+            categories = JSON.parse(localStorage.getItem('dressing_ai_categories')) || [...DEFAULT_CATEGORIES];
+            colors = JSON.parse(localStorage.getItem('dressing_ai_colors')) || [...DEFAULT_COLORS];
+            styles = JSON.parse(localStorage.getItem('dressing_ai_styles')) || [...DEFAULT_STYLES];
+            seasons = JSON.parse(localStorage.getItem('dressing_ai_seasons')) || [...DEFAULT_SEASONS];
+
+            populateFormDropdowns();
+            renderSettingsLists();
+            renderCategoryFilterTabs();
+        }
+
+        function saveCustomOptions() {
+            localStorage.setItem('dressing_ai_categories', JSON.stringify(categories));
+            localStorage.setItem('dressing_ai_colors', JSON.stringify(colors));
+            localStorage.setItem('dressing_ai_styles', JSON.stringify(styles));
+            localStorage.setItem('dressing_ai_seasons', JSON.stringify(seasons));
+
+            populateFormDropdowns();
+            renderSettingsLists();
+            renderCategoryFilterTabs();
+            updateCounters();
+        }
+
+        function populateFormDropdowns() {
+            // Category Select
+            const catSelect = document.getElementById('item-category');
+            if (catSelect) {
+                catSelect.innerHTML = categories.map(c => `<option value="${c.name}">${c.icon || '🏷️'} ${c.name}</option>`).join('');
+            }
+
+            // Color Select
+            const colSelect = document.getElementById('item-color');
+            if (colSelect) {
+                colSelect.innerHTML = colors.map(c => `<option value="${c.name}">${c.icon || '🎨'} ${c.name}</option>`).join('');
+            }
+
+            // Style Select (Form & Generator)
+            const styleSelect = document.getElementById('item-style');
+            const genStyleSelect = document.getElementById('gen-style');
+            const styleOpts = styles.map(s => `<option value="${s.name}">${s.icon || '✨'} ${s.name}</option>`).join('');
+            if (styleSelect) styleSelect.innerHTML = styleOpts;
+            if (genStyleSelect) {
+                genStyleSelect.innerHTML = `<option value="all" class="bg-slate-900 text-white">Tous les styles</option>` + 
+                    styles.map(s => `<option value="${s.name}" class="bg-slate-900 text-white">${s.icon || '✨'} ${s.name}</option>`).join('');
+            }
+
+            // Season Select (Form & Generator)
+            const seasonSelect = document.getElementById('item-season');
+            const genSeasonSelect = document.getElementById('gen-season');
+            const seasonOpts = seasons.map(s => `<option value="${s.name}">${s.icon || '🌡️'} ${s.name}</option>`).join('');
+            if (seasonSelect) seasonSelect.innerHTML = seasonOpts;
+            if (genSeasonSelect) {
+                genSeasonSelect.innerHTML = `<option value="all" class="bg-slate-900 text-white">Toutes Saisons</option>` + 
+                    seasons.map(s => `<option value="${s.name}" class="bg-slate-900 text-white">${s.icon || '🌡️'} ${s.name}</option>`).join('');
+            }
+        }
+
+        function renderSettingsLists() {
+            // Categories List
+            const catList = document.getElementById('settings-categories-list');
+            if (catList) {
+                catList.innerHTML = categories.map(c => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm">
+                        <span class="mr-1.5">${c.icon || '🏷️'}</span> ${c.name}
+                        <button onclick="deleteCustomOption('category', '${c.id}')" class="ml-2 text-slate-400 hover:text-red-500">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </span>
+                `).join('');
+            }
+
+            // Colors List
+            const colList = document.getElementById('settings-colors-list');
+            if (colList) {
+                colList.innerHTML = colors.map(c => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm">
+                        <span class="w-3 h-3 rounded-full mr-1.5 border border-slate-300" style="background-color: ${c.hex || '#cbd5e1'}"></span>
+                        ${c.name}
+                        <button onclick="deleteCustomOption('color', '${c.id}')" class="ml-2 text-slate-400 hover:text-red-500">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </span>
+                `).join('');
+            }
+
+            // Styles List
+            const styleList = document.getElementById('settings-styles-list');
+            if (styleList) {
+                styleList.innerHTML = styles.map(s => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm">
+                        <span class="mr-1.5">${s.icon || '✨'}</span> ${s.name}
+                        <button onclick="deleteCustomOption('style', '${s.id}')" class="ml-2 text-slate-400 hover:text-red-500">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </span>
+                `).join('');
+            }
+
+            // Seasons List
+            const seasonList = document.getElementById('settings-seasons-list');
+            if (seasonList) {
+                seasonList.innerHTML = seasons.map(s => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-sm">
+                        <span class="mr-1.5">${s.icon || '🌡️'}</span> ${s.name}
+                        <button onclick="deleteCustomOption('season', '${s.id}')" class="ml-2 text-slate-400 hover:text-red-500">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </span>
+                `).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // Render Dynamic Category Filter Tabs in Dressing
+        function renderCategoryFilterTabs() {
+            const container = document.getElementById('category-filter-tabs');
+            if (!container) return;
+
+            let html = `
+                <button onclick="filterCategory('all')" id="cat-btn-all" class="cat-filter-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-900 text-white shadow-sm transition">
+                    Tous (<span id="cnt-all">0</span>)
+                </button>
+            `;
+
+            categories.forEach(cat => {
+                html += `
+                    <button onclick="filterCategory('${cat.name}')" id="cat-btn-${cat.name}" class="cat-filter-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                        ${cat.icon || '🏷️'} ${cat.name} (<span id="cnt-${cat.name}">0</span>)
+                    </button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Open Custom Option Modal
+        function openCustomOptionModal(type) {
+            const modal = document.getElementById('custom-option-modal');
+            const title = document.getElementById('modal-title');
+            const label = document.getElementById('modal-name-label');
+            const modalType = document.getElementById('modal-type');
+            const colorContainer = document.getElementById('color-picker-container');
+
+            modalType.value = type;
+            colorContainer.classList.add('hidden');
+
+            switch(type) {
+                case 'category':
+                    title.textContent = 'Ajouter une Nouvelle Catégorie';
+                    label.textContent = 'Nom de la catégorie (ex: Sous-vêtements, Pyjamas...)';
+                    break;
+                case 'color':
+                    title.textContent = 'Ajouter une Nouvelle Couleur';
+                    label.textContent = 'Nom de la couleur (ex: Terracotta, Vert Sauge...)';
+                    colorContainer.classList.remove('hidden');
+                    break;
+                case 'style':
+                    title.textContent = 'Ajouter un Nouveau Style';
+                    label.textContent = 'Nom du style (ex: Cyberpunk, Y2K, Old Money...)';
+                    break;
+                case 'season':
+                    title.textContent = 'Ajouter une Saison / Chaleur';
+                    label.textContent = 'Intitulé (ex: Grand Froid, Canicule, Pluie...)';
+                    break;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomOptionModal() {
+            document.getElementById('custom-option-modal').classList.add('hidden');
+            document.getElementById('custom-option-form').reset();
+        }
+
+        function saveCustomOption(e) {
+            e.preventDefault();
+            const type = document.getElementById('modal-type').value;
+            const name = document.getElementById('modal-item-name').value.trim();
+            const icon = document.getElementById('modal-item-icon').value.trim();
+            const hex = document.getElementById('modal-color-hex-text').value.trim();
+
+            if (!name) return;
+
+            const newObj = { id: 'custom-' + Date.now(), name, icon };
+
+            if (type === 'category') {
+                if (!categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                    categories.push(newObj);
+                }
+            } else if (type === 'color') {
+                newObj.hex = hex || '#a855f7';
+                if (!colors.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                    colors.push(newObj);
+                }
+            } else if (type === 'style') {
+                if (!styles.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                    styles.push(newObj);
+                }
+            } else if (type === 'season') {
+                if (!seasons.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                    seasons.push(newObj);
+                }
+            }
+
+            saveCustomOptions();
+            closeCustomOptionModal();
+            showToast(`✨ Nouvelle option "${name}" ajoutée avec succès !`);
+        }
+
+        function deleteCustomOption(type, id) {
+            if (type === 'category') categories = categories.filter(c => c.id !== id);
+            if (type === 'color') colors = colors.filter(c => c.id !== id);
+            if (type === 'style') styles = styles.filter(s => s.id !== id);
+            if (type === 'season') seasons = seasons.filter(s => s.id !== id);
+
+            saveCustomOptions();
+            showToast('Option supprimée des choix.');
+        }
+
+        // LocalStorage Wardrobe Management
+        function loadWardrobe() {
+            const saved = localStorage.getItem('dressing_ai_clothes_v2');
+            if (saved) {
+                try {
+                    wardrobe = JSON.parse(saved);
+                } catch(e) {
+                    wardrobe = [...SAMPLE_CLOTHES];
+                }
+            } else {
+                wardrobe = [...SAMPLE_CLOTHES];
+                saveWardrobe();
+            }
+            updateCounters();
+            renderWardrobeGrid();
+            renderLaundryGrid();
+        }
+
+        function saveWardrobe() {
+            localStorage.setItem('dressing_ai_clothes_v2', JSON.stringify(wardrobe));
+            updateCounters();
+            renderWardrobeGrid();
+            renderLaundryGrid();
+        }
+
+        function resetDressingToDefault() {
+            wardrobe = [...SAMPLE_CLOTHES];
+            categories = [...DEFAULT_CATEGORIES];
+            colors = [...DEFAULT_COLORS];
+            styles = [...DEFAULT_STYLES];
+            seasons = [...DEFAULT_SEASONS];
+            saveCustomOptions();
+            saveWardrobe();
+            showToast('Dressing et options réinitialisés par défaut !');
+        }
+
+        // Navigation Switcher
+        function switchTab(tabName) {
+            ['outfit', 'dressing', 'laundry', 'scanner', 'settings'].forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`nav-${t}`);
+                if (sec && btn) {
+                    if (t === tabName) {
+                        sec.classList.remove('hidden');
+                        btn.className = 'flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-brand-700 shadow-sm';
+                    } else {
+                        sec.classList.add('hidden');
+                        btn.className = 'flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900';
+                    }
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // Wardrobe Counters
+        function updateCounters() {
+            const cleanClothes = wardrobe.filter(i => !i.isDirty);
+            const dirtyClothes = wardrobe.filter(i => i.isDirty);
+
+            const counts = { all: cleanClothes.length };
+            categories.forEach(cat => counts[cat.name] = 0);
+
+            cleanClothes.forEach(item => {
+                if (counts[item.category] !== undefined) {
+                    counts[item.category]++;
+                } else {
+                    counts[item.category] = 1;
+                }
+            });
+
+            document.getElementById('clean-badge').textContent = cleanClothes.length;
+            document.getElementById('dirty-badge').textContent = dirtyClothes.length;
+            document.getElementById('footer-dirty-cnt').textContent = dirtyClothes.length;
+            
+            // Header dirty alert banner
+            const dirtyBanner = document.getElementById('dirty-alert-banner');
+            const dirtyBannerCount = document.getElementById('dirty-banner-count');
+            if (dirtyClothes.length > 0) {
+                dirtyBanner.classList.remove('hidden');
+                dirtyBannerCount.textContent = dirtyClothes.length;
+            } else {
+                dirtyBanner.classList.add('hidden');
+            }
+
+            const cntAll = document.getElementById('cnt-all');
+            if (cntAll) cntAll.textContent = counts.all;
+
+            categories.forEach(cat => {
+                const el = document.getElementById(`cnt-${cat.name}`);
+                if (el) el.textContent = counts[cat.name] || 0;
+            });
+        }
+
+        // Render Clean Wardrobe Grid
+        function filterCategory(cat) {
+            activeCategoryFilter = cat;
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.className = 'cat-filter-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition';
+            });
+            const activeBtn = document.getElementById(`cat-btn-${cat}`);
+            if (activeBtn) {
+                activeBtn.className = 'cat-filter-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-900 text-white shadow-sm transition';
+            }
+            renderWardrobeGrid();
+        }
+
+        function renderWardrobeGrid() {
+            const grid = document.getElementById('clothes-grid');
+            grid.innerHTML = '';
+
+            const cleanClothes = wardrobe.filter(i => !i.isDirty);
+
+            const filtered = activeCategoryFilter === 'all' 
+                ? cleanClothes 
+                : cleanClothes.filter(i => i.category === activeCategoryFilter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-3">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                            <i data-lucide="sparkles" class="w-8 h-8"></i>
+                        </div>
+                        <p class="text-slate-500 text-sm font-medium">Aucun vêtement propre disponible dans cette catégorie.</p>
+                        <p class="text-xs text-slate-400">Vérifie le linge sale ou scannes-en de nouveaux !</p>
+                        <button onclick="switchTab('laundry')" class="px-4 py-2 bg-amber-500 text-white text-xs font-semibold rounded-xl">Voir le Linge Sale</button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(item => {
+                const colorHex = getColorHex(item.color);
+                const card = document.createElement('div');
+                card.className = 'group relative bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col';
+                card.innerHTML = `
+                    <div class="relative aspect-square overflow-hidden bg-slate-100">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=V%C3%AAtement'">
+                        
+                        <div class="absolute top-2 right-2 flex space-x-1">
+                            <button onclick="toggleFavorite('${item.id}')" class="p-1.5 rounded-full ${item.favorite ? 'bg-rose-500 text-white' : 'bg-white/80 backdrop-blur-md text-slate-600 hover:text-rose-500'} transition shadow-sm">
+                                <i data-lucide="heart" class="w-3.5 h-3.5 ${item.favorite ? 'fill-current' : ''}"></i>
+                            </button>
+                            <button onclick="markAsDirty('${item.id}')" title="Mettre au linge sale" class="p-1.5 rounded-full bg-white/80 backdrop-blur-md text-slate-600 hover:text-amber-600 transition shadow-sm">
+                                <i data-lucide="washing-machine" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="deleteClothing('${item.id}')" title="Supprimer" class="p-1.5 rounded-full bg-white/80 backdrop-blur-md text-slate-600 hover:text-red-600 transition shadow-sm opacity-0 group-hover:opacity-100">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+
+                        <span class="absolute bottom-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-900/75 text-white backdrop-blur-sm">
+                            ${item.style}
+                        </span>
+                    </div>
+
+                    <div class="p-3 flex-grow flex flex-col justify-between space-y-2">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-800 line-clamp-1">${item.title}</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${item.category} • ${item.season}</p>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] border-t border-slate-100 pt-2">
+                            <span class="inline-flex items-center text-slate-600 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-full mr-1.5 border border-slate-300" style="background-color: ${colorHex}"></span>
+                                ${item.color}
+                            </span>
+                            <span class="text-emerald-600 font-semibold text-[10px] flex items-center">
+                                <i data-lucide="check" class="w-3 h-3 mr-0.5"></i> Propre
+                            </span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Render Laundry Grid
+        function renderLaundryGrid() {
+            const grid = document.getElementById('laundry-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const dirtyClothes = wardrobe.filter(i => i.isDirty);
+
+            if (dirtyClothes.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-3 bg-white rounded-3xl border border-dashed border-slate-200">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                            <i data-lucide="sparkles" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800">La corbeille à linge est vide !</h3>
+                        <p class="text-slate-500 text-sm max-w-sm mx-auto">Tous tes vêtements sont propres et plies dans ton armoire.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dirtyClothes.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'group relative bg-amber-50/50 rounded-2xl border border-amber-200/60 overflow-hidden shadow-sm flex flex-col';
+                card.innerHTML = `
+                    <div class="relative aspect-square overflow-hidden bg-slate-100">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover grayscale-[30%] group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=V%C3%AAtement'">
+                        
+                        <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-sm flex items-center space-x-1">
+                            <i data-lucide="washing-machine" class="w-3 h-3"></i>
+                            <span>Au Linge Sale</span>
+                        </span>
+                    </div>
+
+                    <div class="p-3 flex-grow flex flex-col justify-between space-y-2">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-800 line-clamp-1">${item.title}</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${item.category} • ${item.season}</p>
+                        </div>
+                        <div class="pt-2 border-t border-amber-100 flex items-center justify-between">
+                            <button onclick="washSingleItem('${item.id}')" class="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 shadow-sm">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                <span>Laver & Ranger</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Laundry Actions
+        function markAsDirty(id) {
+            const item = wardrobe.find(i => i.id === id);
+            if (item) {
+                item.isDirty = true;
+                saveWardrobe();
+                showToast(`🧺 "${item.title}" est passé au linge sale !`);
+            }
+        }
+
+        function washSingleItem(id) {
+            const item = wardrobe.find(i => i.id === id);
+            if (item) {
+                item.isDirty = false;
+                saveWardrobe();
+                showToast(`✨ "${item.title}" est lavé et de retour dans l'armoire !`);
+            }
+        }
+
+        function washAllDirtyClothes() {
+            const dirtyCount = wardrobe.filter(i => i.isDirty).length;
+            if (dirtyCount === 0) {
+                showToast('Le linge sale est déjà totalement vide !');
+                return;
+            }
+            wardrobe.forEach(item => item.isDirty = false);
+            saveWardrobe();
+            showToast(`🧼 Lessive terminée ! ${dirtyCount} vêtement(s) lavés et réintégrés au dressing.`);
+        }
+
+        function wearOutfitAndSendToDirty(outfit) {
+            if (!outfit) return;
+            
+            const itemsToDirty = [outfit.top, outfit.bottom, outfit.shoes];
+            if (outfit.jacket) itemsToDirty.push(outfit.jacket);
+            if (outfit.accessory) itemsToDirty.push(outfit.accessory);
+
+            itemsToDirty.forEach(item => {
+                const found = wardrobe.find(i => i.id === item.id);
+                if (found) found.isDirty = true;
+            });
+
+            saveWardrobe();
+            showToast('👗 Tenue portée aujourd\'hui ! Vos habits ont été mis au linge sale.');
+            
+            generateDailyOutfit();
+        }
+
+        function toggleFavorite(id) {
+            const item = wardrobe.find(i => i.id === id);
+            if (item) {
+                item.favorite = !item.favorite;
+                saveWardrobe();
+                showToast(item.favorite ? 'Ajouté aux favoris !' : 'Retiré des favoris.');
+            }
+        }
+
+        function deleteClothing(id) {
+            wardrobe = wardrobe.filter(i => i.id !== id);
+            saveWardrobe();
+            showToast('Vêtement supprimé de ton dressing.');
+        }
+
+        function getColorHex(colorName) {
+            const found = colors.find(c => c.name.toLowerCase() === colorName.toLowerCase());
+            return found ? found.hex : '#94a3b8';
+        }
+
+        // --- SMART OUTFIT GENERATOR ENGINE ---
+        function generateDailyOutfit() {
+            const seasonFilter = document.getElementById('gen-season') ? document.getElementById('gen-season').value : 'all';
+            const styleFilter = document.getElementById('gen-style') ? document.getElementById('gen-style').value : 'all';
+
+            const cleanPool = wardrobe.filter(i => !i.isDirty);
+
+            let tops = cleanPool.filter(i => i.category === 'Hauts');
+            let bottoms = cleanPool.filter(i => i.category === 'Bas');
+            let shoes = cleanPool.filter(i => i.category === 'Chaussures');
+            let jackets = cleanPool.filter(i => i.category === 'Vestes');
+            let accessories = cleanPool.filter(i => i.category === 'Accessoires');
+
+            if (seasonFilter !== 'all') {
+                const sMatch = i => i.season === seasonFilter || i.season === 'Toutes';
+                if (tops.some(sMatch)) tops = tops.filter(sMatch);
+                if (bottoms.some(sMatch)) bottoms = bottoms.filter(sMatch);
+                if (shoes.some(sMatch)) shoes = shoes.filter(sMatch);
+                if (jackets.some(sMatch)) jackets = jackets.filter(sMatch);
+            }
+
+            if (styleFilter !== 'all') {
+                const stMatch = i => i.style === styleFilter;
+                if (tops.some(stMatch)) tops = tops.filter(stMatch);
+                if (bottoms.some(stMatch)) bottoms = bottoms.filter(stMatch);
+                if (shoes.some(stMatch)) shoes = shoes.filter(stMatch);
+            }
+
+            // Fallbacks if clean pool is restricted
+            if (tops.length === 0) tops = cleanPool.filter(i => i.category === 'Hauts');
+            if (bottoms.length === 0) bottoms = cleanPool.filter(i => i.category === 'Bas');
+            if (shoes.length === 0) shoes = cleanPool.filter(i => i.category === 'Chaussures');
+
+            if (tops.length === 0 || bottoms.length === 0 || shoes.length === 0) {
+                renderEmptyOutfitError();
+                return;
+            }
+
+            const chosenTop = getRandomItem(tops);
+            let matchingBottoms = bottoms.filter(b => b.style === chosenTop.style || isNeutralColor(b.color) || isNeutralColor(chosenTop.color));
+            const chosenBottom = matchingBottoms.length > 0 ? getRandomItem(matchingBottoms) : getRandomItem(bottoms);
+
+            let matchingShoes = shoes.filter(s => s.style === chosenTop.style || isNeutralColor(s.color));
+            const chosenShoe = matchingShoes.length > 0 ? getRandomItem(matchingShoes) : getRandomItem(shoes);
+
+            let chosenJacket = null;
+            if (seasonFilter === 'Hiver' || seasonFilter === 'Grand Froid' || seasonFilter === 'Demi-saison' || Math.random() > 0.4) {
+                if (jackets.length > 0) chosenJacket = getRandomItem(jackets);
+            }
+
+            let chosenAccessory = null;
+            if (accessories.length > 0 && Math.random() > 0.3) {
+                chosenAccessory = getRandomItem(accessories);
+            }
+
+            let score = 93;
+            if (chosenTop.style === chosenBottom.style) score += 3;
+            if (isNeutralColor(chosenTop.color) || isNeutralColor(chosenBottom.color)) score += 2;
+            if (chosenTop.favorite || chosenBottom.favorite) score += 1;
+            if (score > 99) score = 99;
+
+            currentGeneratedOutfit = {
+                top: chosenTop,
+                bottom: chosenBottom,
+                shoes: chosenShoe,
+                jacket: chosenJacket,
+                accessory: chosenAccessory,
+                score: score,
+                style: chosenTop.style
+            };
+
+            renderOutfitCard(currentGeneratedOutfit);
+        }
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function isNeutralColor(color) {
+            return ['Noir', 'Blanc', 'Gris', 'Marron', 'Bleu'].includes(color);
+        }
+
+        function renderOutfitCard(outfit) {
+            const container = document.getElementById('outfit-result-container');
+            
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl border border-purple-100 p-6 sm:p-8 outfit-card-glow space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center space-x-1.5">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                                <span>${outfit.score}% Accord Parfait</span>
+                            </span>
+                            <span class="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">
+                                Style ${outfit.style}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="generateDailyOutfit()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-2">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span>Changer</span>
+                            </button>
+                            <button onclick="wearOutfitAndSendToDirty(currentGeneratedOutfit)" class="px-5 py-2.5 bg-gradient-to-r from-brand-600 to-pink-600 hover:from-brand-700 hover:to-pink-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-pink-500/20">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                <span>Je porte cet outfit aujourd'hui !</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-${3 + (outfit.jacket?1:0) + (outfit.accessory?1:0)} gap-4 sm:gap-6">
+                        ${renderOutfitItemCard(outfit.top, 'Haut Principal')}
+                        ${renderOutfitItemCard(outfit.bottom, 'Bas Assorti')}
+                        ${renderOutfitItemCard(outfit.shoes, 'Chaussures')}
+                        ${outfit.jacket ? renderOutfitItemCard(outfit.jacket, 'Veste / Manteau') : ''}
+                        ${outfit.accessory ? renderOutfitItemCard(outfit.accessory, 'Accessoire') : ''}
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/60 flex items-start space-x-3 text-xs sm:text-sm text-slate-600">
+                        <div class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-800">Conseil Style AI :</span>
+                            Cette tenue propre associe harmonieusement la couleur <span class="font-semibold text-brand-700">${outfit.top.color}</span> avec le style <span class="font-semibold text-slate-800">${outfit.bottom.style}</span>.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+        }
+
+        function renderOutfitItemCard(item, label) {
+            const colorHex = getColorHex(item.color);
+            return `
+                <div class="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/60 flex flex-col justify-between group hover:border-brand-300 transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${label}</span>
+                            <span class="w-2.5 h-2.5 rounded-full border border-slate-300" style="background-color: ${colorHex}"></span>
+                        </div>
+                        <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-white border border-slate-100">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=V%C3%AAtement'">
+                        </div>
+                        <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${item.title}</h4>
+                    </div>
+                    <div class="mt-2 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>${item.color}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-slate-200/60 text-[10px] font-semibold">${item.season}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmptyOutfitError() {
+            const dirtyCount = wardrobe.filter(i => i.isDirty).length;
+            const container = document.getElementById('outfit-result-container');
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+                        <i data-lucide="washing-machine" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg">Pas assez de vêtements propres !</h3>
+                    <p class="text-slate-500 text-sm max-w-md mx-auto">
+                        Tu as **${dirtyCount} vêtement(s) au linge sale**. Lave ton linge ou ajoute de nouvelles pièces dans tes catégories personnalisées.
+                    </p>
+                    <div class="flex items-center justify-center space-x-3 pt-2">
+                        <button onclick="switchTab('laundry')" class="px-5 py-2.5 bg-amber-500 text-white text-xs font-semibold rounded-xl hover:bg-amber-600 transition">
+                            Laver le Linge Sale
+                        </button>
+                        <button onclick="switchTab('scanner')" class="px-5 py-2.5 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition">
+                            Scanner de nouveaux habits
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // --- SCANNER PRESETS & SAVE ---
+        function renderPresetThumbnails() {
+            const container = document.getElementById('preset-thumbnails');
+            if (!container) return;
+            container.innerHTML = '';
+            PRESETS.forEach((preset) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => applyPreset(preset);
+                btn.className = 'aspect-square rounded-xl overflow-hidden border-2 border-slate-200 hover:border-brand-500 transition relative group';
+                btn.innerHTML = `
+                    <img src="${preset.image}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px] font-bold p-1 text-center">
+                        ${preset.title}
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function applyPreset(preset) {
+            document.getElementById('item-title').value = preset.title;
+            document.getElementById('item-category').value = preset.category;
+            document.getElementById('item-color').value = preset.color;
+            document.getElementById('item-image').value = preset.image;
+            
+            const img = document.getElementById('scan-preview-img');
+            img.src = preset.image;
+            img.classList.remove('hidden');
+            document.getElementById('scan-placeholder').classList.add('hidden');
+            
+            showToast('Modèle sélectionné ! L\'IA a rempli les paramètres.');
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('scan-preview-img');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('scan-placeholder').classList.add('hidden');
+                    document.getElementById('item-image').value = e.target.result;
+                    
+                    triggerSimulatedScan();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function triggerSimulatedScan() {
+            const laser = document.getElementById('scanner-laser');
+            laser.classList.remove('hidden');
+
+            setTimeout(() => {
+                laser.classList.add('hidden');
+                
+                if (!document.getElementById('item-title').value) {
+                    const randCat = categories[Math.floor(Math.random() * categories.length)].name;
+                    const randCol = colors[Math.floor(Math.random() * colors.length)].name;
+                    
+                    document.getElementById('item-category').value = randCat;
+                    document.getElementById('item-color').value = randCol;
+                    document.getElementById('item-title').value = `${randCat} ${randCol} Scanné`;
+                }
+
+                showToast('✨ Analyse IA terminée : Options synchronisées !');
+            }, 1800);
+        }
+
+        function saveClothing(e) {
+            e.preventDefault();
+            const title = document.getElementById('item-title').value;
+            const category = document.getElementById('item-category').value;
+            const color = document.getElementById('item-color').value;
+            const style = document.getElementById('item-style').value;
+            const season = document.getElementById('item-season').value;
+            let image = document.getElementById('item-image').value;
+
+            if (!image) {
+                image = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80';
+            }
+
+            const newItem = {
+                id: Date.now().toString(),
+                title,
+                category,
+                color,
+                style,
+                season,
+                image,
+                favorite: false,
+                isDirty: false
+            };
+
+            wardrobe.unshift(newItem);
+            saveWardrobe();
+
+            document.getElementById('add-clothing-form').reset();
+            document.getElementById('scan-preview-img').classList.add('hidden');
+            document.getElementById('scan-placeholder').classList.remove('hidden');
+
+            showToast('✅ Vêtement propre ajouté à ton armoire !');
+            switchTab('dressing');
+        }
+
+        // Notification Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
